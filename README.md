@@ -4,4 +4,4 @@ This is a small project where I've learned a bit how to handle with `FlaskSocket
 
 <br>
 
-(liveChat)[]
+![liveChat](https://github.com/fabioacarvalho/live-chat/blob/main/public/img/chat.png)
