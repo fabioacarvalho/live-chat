@@ -1,2 +1,5 @@
 flask
 flask-socketio
+gevent
+gevent-websocket
+flask-cors==6.0.1

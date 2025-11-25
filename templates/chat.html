@@ -4,23 +4,113 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Chat</title>
-    <style>
-        body {
-            background-color: #c2c2c2;
-        }
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee+Spice&family=Playwrite+VN:wght@100..400&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
-<body>
-    <h1>Hello guys worl</h1>
+<body class="bg-black text-white flex flex-col justify-between items-center gap-4">
+    <main class="flex flex-col justify-between items-center gap-4 mt-2">
+        <h1 style="font-family:'Bungee Spice';" class="text-4xl font-bold"> Welcome to Live Chat</h1>
+        <p>Chat with your friends in real-time!</p>
+
+        <div id="chat-messages" class="flex flex-col gap-4 max-h-96 overflow-y-auto w-full px-4">
+            <!-- Messages will appear here -->
+
+        </div>
+        <div>
+            <form action="">
+                <input class="outline outline-black/5 gap-4 px-3 py-2 border rounded-md shadow-sm" type="text" placeholder="What's your name?">
+                <input class="outline outline-black/5 gap-4 px-3 py-2 border rounded-md shadow-sm" type="text" placeholder="Feel free to share a message...">
+                <button class="bg-sky-500 hover:bg-sky-700 rounded-md px-3 py-2 gap-2" type="submit">Send</button>
+            </form>
+        </div>
+    </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+    
     <script type="text/javascript" charset="utf-8">
         window.onload = () => {
-            const socket = io('http//localhost:8000');
+            const socket = io('http://localhost:8000');
             socket.on('connect', function() {
-                socket.emit('my event', {data: 'I\'m connected!'});
+                socket.emit('my event', {data: 'Hey whats up!'});
+            });
+
+            document.querySelector('form').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const name = e.target[0].value;
+                const message = e.target[1].value;
+                
+                socket.emit('send_message', {name: name, message: message});
+                e.target[1].value = '';
+            });
+
+            socket.on('receive_message', function(data) {
+
+                const chatBox = document.createElement('div');
+                chatBox.classList.add(
+                'flex', 'items-center', 'gap-4', 'rounded-lg',
+                'bg-white', 'p-6', 'shadow-md', 'outline',
+                'outline-black/5', 'dark:bg-gray-800'
+                );
+
+                // --- Avatar (span + svg) ---
+                const avatar = document.createElement('span');
+                avatar.classList.add(
+                'inline-flex', 'shrink-0', 'rounded-full', 'border',
+                'border-pink-300', 'bg-pink-100', 'p-2',
+                'dark:border-pink-300/10', 'dark:bg-pink-400/10'
+                );
+
+                const avatarSvg = document.createElement('svg');
+                avatarSvg.classList.add('size-6', 'stroke-pink-700', 'dark:stroke-pink-500');
+                avatar.appendChild(avatarSvg);
+
+                // --- Text container (p + time) ---
+                const textContainer = document.createElement('div');
+
+                const messageParagraph = document.createElement('p');
+                messageParagraph.classList.add('text-gray-700', 'dark:text-gray-400');
+
+                // Name
+                const nameSpan = document.createElement('span');
+                nameSpan.classList.add('font-medium', 'text-gray-950', 'dark:text-white');
+                nameSpan.textContent = `${data.name}: `;
+
+                // texto da mensagem
+                const messageText = document.createTextNode(data.message);
+
+                messageParagraph.appendChild(nameSpan);
+                messageParagraph.appendChild(messageText);
+
+                // --- Time ---
+                const timeStamp = document.createElement('time');
+                timeStamp.classList.add('mt-1', 'block', 'text-gray-500');
+
+                const now = new Date();
+                const formattedTime = `${now.getHours()}:${now
+                .getMinutes()
+                .toString()
+                .padStart(2, '0')}`;
+
+                timeStamp.setAttribute('datetime', formattedTime);
+                timeStamp.textContent = formattedTime;
+
+                // --- Append tudo ---
+                textContainer.appendChild(messageParagraph);
+                textContainer.appendChild(timeStamp);
+
+                chatBox.appendChild(avatar);
+                chatBox.appendChild(textContainer);
+
+                document.getElementById('chat-messages').appendChild(chatBox);
             });
         }
     </script>
+
+
+
 </body>
 </html>
